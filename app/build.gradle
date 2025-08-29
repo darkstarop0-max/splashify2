@@ -14,6 +14,11 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+    buildConfigField "String", "DA_CLIENT_ID", '"53857"'
+    buildConfigField "String", "DA_CLIENT_SECRET", '"0781aa26fedc8e2e5f0ac5ff1396832d"'
+    // Optional: default DeviantArt username for gallery tests. Leave empty to use browse/popular.
+    buildConfigField "String", "DA_DEFAULT_USERNAME", '"loish"'
     }
 
     buildTypes {
@@ -28,6 +33,7 @@ android {
     }
     buildFeatures {
         viewBinding true
+    buildConfig true
     }
 }
 
@@ -43,6 +49,13 @@ dependencies {
     implementation libs.coordinatorlayout
     implementation libs.recyclerview
     implementation libs.shimmer
+    implementation libs.retrofit
+    implementation libs.converter.gson
+    implementation libs.okhttp
+    implementation libs.logging.interceptor
+    implementation libs.gson
+    implementation libs.glide
+    annotationProcessor libs.glide.compiler
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core

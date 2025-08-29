@@ -11,6 +11,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.curosoft.splashify.navigation.NavGraphBuilder;
+import com.curosoft.splashify.repository.WallpaperRepository;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -30,5 +31,6 @@ public class MainActivity extends AppCompatActivity {
             NavController navController = navHostFragment.getNavController();
             NavGraphBuilder.setup(navController, this);
         }
+
     }
 }

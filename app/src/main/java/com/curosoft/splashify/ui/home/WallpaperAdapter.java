@@ -8,16 +8,20 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.curosoft.splashify.R;
-import com.curosoft.splashify.model.WallpaperItem;
+import com.curosoft.splashify.model.Wallpaper;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class WallpaperAdapter extends RecyclerView.Adapter<WallpaperAdapter.VH> {
-    private final List<WallpaperItem> items;
+    private final List<Wallpaper> items = new ArrayList<>();
 
-    public WallpaperAdapter(List<WallpaperItem> items) {
-        this.items = items;
+    public void submitList(List<Wallpaper> list) {
+        items.clear();
+        if (list != null) items.addAll(list);
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -29,7 +33,12 @@ public class WallpaperAdapter extends RecyclerView.Adapter<WallpaperAdapter.VH> 
 
     @Override
     public void onBindViewHolder(@NonNull VH holder, int position) {
-        holder.image.setImageResource(items.get(position).imageResId);
+        String url = items.get(position).url;
+        Glide.with(holder.image.getContext())
+                .load(url)
+                .placeholder(R.drawable.placeholder)
+                .error(R.drawable.error_placeholder)
+                .into(holder.image);
     }
 
     @Override

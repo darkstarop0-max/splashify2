@@ -8,21 +8,22 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.curosoft.splashify.R;
 import com.curosoft.splashify.databinding.FragmentHomeBinding;
 import com.curosoft.splashify.model.Category;
-import com.curosoft.splashify.model.WallpaperItem;
-import com.curosoft.splashify.R;
-import com.facebook.shimmer.ShimmerFrameLayout;
+import com.curosoft.splashify.viewmodel.HomeViewModel;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class HomeFragment extends Fragment {
     private FragmentHomeBinding binding;
+    private HomeViewModel viewModel;
+    private WallpaperAdapter wallpaperAdapter;
 
     @Nullable
     @Override
@@ -41,9 +42,7 @@ public class HomeFragment extends Fragment {
         showEmpty(false);
         showError(false);
 
-        binding.btnRetry.setOnClickListener(v -> {
-            android.widget.Toast.makeText(requireContext(), "Retry clicked", android.widget.Toast.LENGTH_SHORT).show();
-        });
+        binding.btnRetry.setOnClickListener(v -> viewModel.loadPopular());
 
         // Categories RecyclerView - horizontal
         List<Category> categories = Arrays.asList(
@@ -58,26 +57,39 @@ public class HomeFragment extends Fragment {
         binding.rvCategories.setAdapter(categoryAdapter);
 
         // Wallpapers RecyclerView - grid 2 columns
-        List<WallpaperItem> wallpapers = new ArrayList<>();
-        for (int i = 1; i <= 10; i++) {
-            wallpapers.add(new WallpaperItem(String.valueOf(i), R.mipmap.ic_launcher));
-        }
-        WallpaperAdapter wallpaperAdapter = new WallpaperAdapter(wallpapers);
+        wallpaperAdapter = new WallpaperAdapter();
         binding.rvWallpapers.setLayoutManager(new GridLayoutManager(requireContext(), 2));
         binding.rvWallpapers.setAdapter(wallpaperAdapter);
 
-        // Simulate loading delay, then show content
-        binding.getRoot().postDelayed(() -> {
+        // ViewModel and observers
+        viewModel = new ViewModelProvider(this).get(HomeViewModel.class);
+        viewModel.loading.observe(getViewLifecycleOwner(), isLoading -> {
+            if (isLoading != null) showShimmer(isLoading);
+        });
+        viewModel.wallpapers.observe(getViewLifecycleOwner(), list -> {
             showShimmer(false);
-            // Toggle between content/empty/error by commenting lines below as needed for testing
-            if (wallpapers.isEmpty()) {
+            if (list == null || list.isEmpty()) {
+                showContent(false);
                 showEmpty(true);
+                showError(false);
             } else {
+                wallpaperAdapter.submitList(list);
+                showEmpty(false);
+                showError(false);
                 showContent(true);
             }
-            // Example to show error state instead:
-            // showError(true);
-        }, 2200);
+        });
+        viewModel.error.observe(getViewLifecycleOwner(), err -> {
+            if (err != null) {
+                showShimmer(false);
+                showContent(false);
+                showEmpty(false);
+                showError(true);
+            }
+        });
+
+        // Load data
+        viewModel.loadPopular();
     }
 
     @Override
