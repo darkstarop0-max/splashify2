@@ -1,5 +1,6 @@
 package com.curosoft.splashify.ui.home;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,6 +40,12 @@ public class WallpaperAdapter extends RecyclerView.Adapter<WallpaperAdapter.VH> 
                 .placeholder(R.drawable.placeholder)
                 .error(R.drawable.error_placeholder)
                 .into(holder.image);
+
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(v.getContext(), com.curosoft.splashify.ui.viewer.FullScreenActivity.class);
+            intent.putExtra(com.curosoft.splashify.ui.viewer.FullScreenActivity.EXTRA_IMAGE_URL, url);
+            v.getContext().startActivity(intent);
+        });
     }
 
     @Override
