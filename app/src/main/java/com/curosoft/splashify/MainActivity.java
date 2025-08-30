@@ -1,6 +1,8 @@
 package com.curosoft.splashify;
 
 import android.os.Bundle;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-    AppCompatDelegate.setDefaultNightMode(Prefs.getNightMode(this));
+        AppCompatDelegate.setDefaultNightMode(Prefs.getNightMode(this));
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -37,6 +39,24 @@ public class MainActivity extends AppCompatActivity {
         if (navHostFragment != null) {
             navController = navHostFragment.getNavController();
             NavGraphBuilder.setup(navController, this);
+            
+            // Hide/show toolbar and bottom navigation based on destination
+            navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
+                if (destination.getId() == R.id.onboardingFragment) {
+                    // Hide toolbar and bottom navigation for onboarding
+                    findViewById(R.id.topAppBar).setVisibility(View.GONE);
+                    if (bottomNav != null) {
+                        bottomNav.setVisibility(View.GONE);
+                        // Use GONE instead of just hiding - this actually removes it from layout
+                        ViewGroup.LayoutParams params = bottomNav.getLayoutParams();
+                        bottomNav.setLayoutParams(params);
+                    }
+                } else {
+                    // Show toolbar and bottom navigation for other destinations
+                    findViewById(R.id.topAppBar).setVisibility(View.VISIBLE);
+                    if (bottomNav != null) bottomNav.setVisibility(View.VISIBLE);
+                }
+            });
         }
 
         bottomNav = findViewById(R.id.bottomNav);
