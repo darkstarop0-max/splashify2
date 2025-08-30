@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Widget.Splashify.SearchView" parent="Widget.AppCompat.SearchView">
+        <item name="queryBackground">@android:color/transparent</item>
+        <item name="submitBackground">@android:color/transparent</item>
+        <item name="closeIcon">@drawable/ic_arrow_back_24</item>
+        <item name="searchIcon">@drawable/ic_search_24</item>
+        <item name="queryHint">@string/search_hint</item>
+        <item name="android:maxWidth">10000dp</item>
+        <item name="android:imeOptions">actionSearch|flagNoExtractUi</item>
+        <item name="android:inputType">text</item>
+    </style>
+    
+    <style name="Widget.Splashify.SearchBar" parent="Widget.Material3.SearchBar">
+        <item name="android:layout_margin">16dp</item>
+        <item name="android:elevation">4dp</item>
+    </style>
+</resources>
