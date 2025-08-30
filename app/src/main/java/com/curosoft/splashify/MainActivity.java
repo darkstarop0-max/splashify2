@@ -14,6 +14,8 @@ import androidx.navigation.ui.NavigationUI;
 import com.curosoft.splashify.navigation.NavGraphBuilder;
 import com.curosoft.splashify.repository.WallpaperRepository;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import androidx.appcompat.app.AppCompatDelegate;
+import com.curosoft.splashify.utils.Prefs;
 
 public class MainActivity extends AppCompatActivity {
     private BottomNavigationView bottomNav;
@@ -22,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    AppCompatDelegate.setDefaultNightMode(Prefs.getNightMode(this));
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
