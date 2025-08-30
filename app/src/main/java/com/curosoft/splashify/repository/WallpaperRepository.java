@@ -30,7 +30,7 @@ public class WallpaperRepository {
     }
 
     public void fetchPopular(PopularCallback callback) {
-        ensureTokenThen(callback, () -> doFetchPopular(false, callback));
+        ensureTokenThen(t -> callback.onError(t), () -> doFetchPopular(false, callback));
     }
 
     public interface SearchCallback {
@@ -39,10 +39,7 @@ public class WallpaperRepository {
     }
 
     public void searchByTag(String query, SearchCallback callback) {
-        ensureTokenThen(new PopularCallback() {
-            @Override public void onSuccess(List<Wallpaper> wallpapers) { /* noop */ }
-            @Override public void onError(Throwable t) { callback.onError(t); }
-        }, () -> doSearchByTag(query, false, callback));
+        ensureTokenThen(callback::onError, () -> doSearchByTag(query, false, callback));
     }
 
     private void doFetchPopular(boolean hasRetriedAfterToken, PopularCallback callback) {
@@ -75,7 +72,7 @@ public class WallpaperRepository {
                     // Token might be expired; refresh and retry once
                     Log.w(TAG, "401 received. Refreshing token and retrying once.");
                     TokenStore.setToken(null, 0);
-                    ensureTokenThen(callback, () -> doFetchPopular(true, callback));
+                    ensureTokenThen(callback::onError, () -> doFetchPopular(true, callback));
                 } else {
                     callback.onError(new Exception("Popular failed: " + response.code() + " " + response.message()));
                 }
@@ -117,10 +114,7 @@ public class WallpaperRepository {
                 } else if ((response.code() == 401 || response.code() == 403) && !hasRetriedAfterToken) {
                     Log.w(TAG, "401 on search. Refreshing token and retrying once.");
                     TokenStore.setToken(null, 0);
-                    ensureTokenThen(new PopularCallback() {
-                        @Override public void onSuccess(List<Wallpaper> wallpapers) { /* noop */ }
-                        @Override public void onError(Throwable t) { callback.onError(t); }
-                    }, () -> doSearchByTag(trimmed, true, callback));
+                    ensureTokenThen(callback::onError, () -> doSearchByTag(trimmed, true, callback));
                 } else {
                     callback.onError(new Exception("Search failed: " + response.code() + " " + response.message()));
                 }
@@ -133,12 +127,13 @@ public class WallpaperRepository {
         });
     }
 
-    private void ensureTokenThen(PopularCallback errorCallback, Runnable onReady) {
+    private interface ErrorCallback { void onError(Throwable t); }
+    private void ensureTokenThen(ErrorCallback errorCallback, Runnable onReady) {
         if (TokenStore.isValid()) {
             onReady.run();
             return;
         }
-    authService.getToken("client_credentials", BuildConfig.DA_CLIENT_ID, BuildConfig.DA_CLIENT_SECRET)
+        authService.getToken("client_credentials", BuildConfig.DA_CLIENT_ID, BuildConfig.DA_CLIENT_SECRET)
                 .enqueue(new Callback<TokenResponse>() {
                     @Override
                     public void onResponse(Call<TokenResponse> call, Response<TokenResponse> response) {
