@@ -3,10 +3,15 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="primary">#7D4DFF</color>
+    <color name="primary_light">#9E7AFF</color>
+    <color name="primary_dark">#5F34C7</color>
     <color name="secondary">#FF6B80</color>
-    <color name="background">#121212</color>
-    <color name="card_background">#1F1F1F</color>
+    <color name="background">#F8F8FC</color>
+    <color name="card_background">#FFFFFF</color>
+    <color name="surface_variant">#F0F0F4</color>
     <color name="accent">#2D31FA</color>
-    <color name="text_primary">#FFFFFF</color>
-    <color name="text_secondary">#B3FFFFFF</color> <!-- 70% white -->
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="category_selected_background">#EEE5FF</color>
+    <color name="category_stroke">#E0E0E0</color>
 </resources>

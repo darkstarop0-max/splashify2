@@ -41,18 +41,16 @@ public class FullScreenActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_fullscreen);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-            getSupportActionBar().setTitle("Preview");
-        }
+        MaterialButton btnBack = findViewById(R.id.btnBack);
+        MaterialButton btnFavorite = findViewById(R.id.btnFavorite);
+        
+        btnBack.setOnClickListener(v -> onBackPressed());
+        btnFavorite.setOnClickListener(v -> toggleFavorite());
 
-    Intent intent = getIntent();
-    imageUrl = intent != null ? intent.getStringExtra(EXTRA_IMAGE_URL) : null;
-    imageId = intent != null ? intent.getStringExtra(EXTRA_IMAGE_ID) : null;
-    imageTitle = intent != null ? intent.getStringExtra(EXTRA_IMAGE_TITLE) : null;
+        Intent intent = getIntent();
+        imageUrl = intent != null ? intent.getStringExtra(EXTRA_IMAGE_URL) : null;
+        imageId = intent != null ? intent.getStringExtra(EXTRA_IMAGE_ID) : null;
+        imageTitle = intent != null ? intent.getStringExtra(EXTRA_IMAGE_TITLE) : null;
 
         PhotoView photoView = findViewById(R.id.photoView);
         if (imageUrl == null || imageUrl.isEmpty()) {
@@ -74,6 +72,30 @@ public class FullScreenActivity extends AppCompatActivity {
     btnSet.setOnClickListener(v -> applyAsWallpaper(imageUrl));
     btnDownload.setOnClickListener(v -> downloadImage(imageUrl));
     btnShare.setOnClickListener(v -> shareImage(imageUrl));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateFavoriteButtonIcon();
+    }
+
+    private void toggleFavorite() {
+        boolean isFav = FavoritesManager.isInFavorites(this, imageId);
+        // naive check by observing current cached list once; for simplicity, toggle immediately
+        // In a full app, you'd observe LiveData and update icon state accordingly
+        FavoritesManager.toggle(this, imageId, imageTitle, imageUrl, null, isFav);
+        Toast.makeText(this, isFav ? "Removed from favorites" : "Added to favorites", Toast.LENGTH_SHORT).show();
+        // Update button icon based on favorite status
+        updateFavoriteButtonIcon();
+    }
+    
+    private void updateFavoriteButtonIcon() {
+        MaterialButton btnFavorite = findViewById(R.id.btnFavorite);
+        boolean isFavorite = FavoritesManager.isInFavorites(this, imageId);
+        btnFavorite.setIcon(getDrawable(isFavorite ? 
+                R.drawable.ic_favorite_24 : 
+                R.drawable.ic_favorite_border_24));
     }
 
     @Override

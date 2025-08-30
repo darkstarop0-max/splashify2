@@ -3,10 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="220dp"
+    android:layout_height="240dp"
     android:layout_margin="8dp"
-    app:cardCornerRadius="20dp"
-    app:cardUseCompatPadding="true">
+    app:cardCornerRadius="16dp"
+    app:cardElevation="4dp"
+    app:cardPreventCornerOverlap="true"
+    style="@style/Widget.Material3.CardView.Elevated">
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -18,15 +20,21 @@
             android:scaleType="centerCrop"
             tools:src="@mipmap/ic_launcher" />
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/gradient_card_overlay" />
+
         <ImageButton
             android:id="@+id/btnFavorite"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_gravity="top|end"
             android:layout_margin="8dp"
-            android:background="@android:color/transparent"
+            android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/favorites"
             android:padding="8dp"
+            app:tint="@color/white"
             android:src="@drawable/ic_favorite_border_24" />
     </FrameLayout>
 

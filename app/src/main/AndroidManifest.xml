@@ -26,7 +26,7 @@
         <activity
             android:name=".ui.viewer.FullScreenActivity"
             android:exported="false"
-            android:theme="@style/Theme.Material3.DayNight.NoActionBar" />
+            android:theme="@style/Theme.Splashify.FullScreen" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

@@ -11,14 +11,34 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.curosoft.splashify.R;
 import com.curosoft.splashify.model.Category;
+import com.google.android.material.card.MaterialCardView;
 
 import java.util.List;
 
 public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.VH> {
     private final List<Category> items;
+    private int selectedPosition = 0; // Default to first item selected
+    private OnCategorySelectedListener listener;
+    
+    public interface OnCategorySelectedListener {
+        void onCategorySelected(Category category, int position);
+    }
 
     public CategoryAdapter(List<Category> items) {
         this.items = items;
+    }
+    
+    public void setOnCategorySelectedListener(OnCategorySelectedListener listener) {
+        this.listener = listener;
+    }
+    
+    public void setSelectedPosition(int position) {
+        if (position >= 0 && position < items.size() && position != selectedPosition) {
+            int oldPosition = selectedPosition;
+            selectedPosition = position;
+            notifyItemChanged(oldPosition);
+            notifyItemChanged(selectedPosition);
+        }
     }
 
     @NonNull
@@ -33,6 +53,22 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.VH> {
         Category c = items.get(position);
         holder.tv.setText(c.name);
         holder.iv.setImageResource(c.iconResId);
+        
+        // Set selected state
+        holder.cardView.setSelected(position == selectedPosition);
+        
+        holder.itemView.setOnClickListener(v -> {
+            if (selectedPosition != holder.getAdapterPosition()) {
+                int oldPosition = selectedPosition;
+                selectedPosition = holder.getAdapterPosition();
+                notifyItemChanged(oldPosition);
+                notifyItemChanged(selectedPosition);
+                
+                if (listener != null) {
+                    listener.onCategorySelected(items.get(selectedPosition), selectedPosition);
+                }
+            }
+        });
     }
 
     @Override
@@ -43,11 +79,13 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.VH> {
     static class VH extends RecyclerView.ViewHolder {
         TextView tv;
         ImageView iv;
+        MaterialCardView cardView;
 
         VH(@NonNull View itemView) {
             super(itemView);
             tv = itemView.findViewById(R.id.tvCategory);
             iv = itemView.findViewById(R.id.ivIcon);
+            cardView = (MaterialCardView) itemView;
         }
     }
 }

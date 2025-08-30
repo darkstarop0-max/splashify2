@@ -21,6 +21,21 @@ public class FavoritesManager {
         return repo.getAllFavorites();
     }
 
+    public static boolean isInFavorites(Context context, String id) {
+        init(context);
+        // This is a simplified check that assumes the repository has a method to check
+        // In a real implementation, you would query the database directly
+        List<WallpaperEntity> favs = repo.getAllFavoritesSync();
+        if (favs != null) {
+            for (WallpaperEntity entity : favs) {
+                if (entity.id.equals(id)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public static void toggle(Context context, String id, String title, String url, String author, boolean isFav) {
         init(context);
         if (isFav) {

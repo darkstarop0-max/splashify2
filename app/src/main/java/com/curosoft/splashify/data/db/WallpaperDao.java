@@ -19,6 +19,9 @@ public interface WallpaperDao {
 
     @Query("SELECT * FROM favorites ORDER BY title ASC")
     LiveData<List<WallpaperEntity>> getAllFavorites();
+    
+    @Query("SELECT * FROM favorites ORDER BY title ASC")
+    List<WallpaperEntity> getAllFavoritesSync();
 
     @Query("SELECT EXISTS(SELECT 1 FROM favorites WHERE id = :id)")
     LiveData<Boolean> isFavorite(String id);

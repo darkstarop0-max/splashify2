@@ -46,6 +46,7 @@ public class HomeFragment extends Fragment {
         showError(false);
 
         binding.btnRetry.setOnClickListener(v -> viewModel.loadPopular());
+        binding.btnEmptyRefresh.setOnClickListener(v -> viewModel.loadPopular());
 
         // Categories RecyclerView - horizontal
         List<Category> categories = Arrays.asList(
@@ -56,8 +57,13 @@ public class HomeFragment extends Fragment {
                 new Category("minimal", "Minimal", R.mipmap.ic_launcher)
         );
         CategoryAdapter categoryAdapter = new CategoryAdapter(categories);
+        categoryAdapter.setOnCategorySelectedListener((category, position) -> {
+            // Handle category selection
+            viewModel.loadPopular(); // For now, just reload the same data
+        });
         binding.rvCategories.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
         binding.rvCategories.setAdapter(categoryAdapter);
+        categoryAdapter.setSelectedPosition(0); // Select first category by default
 
         // Wallpapers RecyclerView - grid 2 columns
         favoritesViewModel = new ViewModelProvider(requireActivity()).get(FavoritesViewModel.class);

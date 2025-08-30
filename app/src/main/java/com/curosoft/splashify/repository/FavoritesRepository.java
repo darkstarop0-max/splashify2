@@ -9,6 +9,7 @@ import com.curosoft.splashify.data.db.WallpaperDao;
 import com.curosoft.splashify.data.db.WallpaperDatabase;
 import com.curosoft.splashify.data.db.WallpaperEntity;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -23,6 +24,15 @@ public class FavoritesRepository {
 
     public LiveData<List<WallpaperEntity>> getAllFavorites() {
         return dao.getAllFavorites();
+    }
+    
+    public List<WallpaperEntity> getAllFavoritesSync() {
+        // This is a simplified implementation that returns an empty list if there's an error
+        try {
+            return dao.getAllFavoritesSync();
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
     }
 
     public LiveData<Boolean> isFavorite(String id) {
