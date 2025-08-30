@@ -14,4 +14,13 @@ public interface DeviantArtApiService {
         @Query("offset") Integer offset,
         @Query("access_token") String accessToken
     );
+
+    // Search by tag. Example:
+    // GET https://www.deviantart.com/api/v1/oauth2/browse/tags?tag={query}&limit=30&access_token={token}
+    @GET("browse/tags")
+    Call<WallpaperResponse> getBrowseTags(
+        @Query("tag") String tag,
+        @Query("limit") Integer limit,
+        @Query("access_token") String accessToken
+    );
 }

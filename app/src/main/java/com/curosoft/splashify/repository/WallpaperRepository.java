@@ -33,6 +33,18 @@ public class WallpaperRepository {
         ensureTokenThen(callback, () -> doFetchPopular(false, callback));
     }
 
+    public interface SearchCallback {
+        void onSuccess(List<Wallpaper> wallpapers);
+        void onError(Throwable t);
+    }
+
+    public void searchByTag(String query, SearchCallback callback) {
+        ensureTokenThen(new PopularCallback() {
+            @Override public void onSuccess(List<Wallpaper> wallpapers) { /* noop */ }
+            @Override public void onError(Throwable t) { callback.onError(t); }
+        }, () -> doSearchByTag(query, false, callback));
+    }
+
     private void doFetchPopular(boolean hasRetriedAfterToken, PopularCallback callback) {
         String token = TokenStore.getAccessToken();
         String username = BuildConfig.DA_DEFAULT_USERNAME;
@@ -66,6 +78,51 @@ public class WallpaperRepository {
                     ensureTokenThen(callback, () -> doFetchPopular(true, callback));
                 } else {
                     callback.onError(new Exception("Popular failed: " + response.code() + " " + response.message()));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<WallpaperResponse> call, Throwable t) {
+                callback.onError(t);
+            }
+        });
+    }
+
+    private void doSearchByTag(String query, boolean hasRetriedAfterToken, SearchCallback callback) {
+        String token = TokenStore.getAccessToken();
+        if (query == null) query = "";
+        final String trimmed = query.trim();
+        if (trimmed.isEmpty()) {
+            callback.onSuccess(new ArrayList<>());
+            return;
+        }
+        Log.d(TAG, "Searching wallpapers via browse/tags for '" + trimmed + "'");
+        Call<WallpaperResponse> call = apiService.getBrowseTags(trimmed, 30, token);
+        call.enqueue(new Callback<WallpaperResponse>() {
+            @Override
+            public void onResponse(Call<WallpaperResponse> call, Response<WallpaperResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<Wallpaper> list = new ArrayList<>();
+                    if (response.body().results != null) {
+                        for (WallpaperResponse.Deviation d : response.body().results) {
+                            String url = d.content != null ? d.content.src : null;
+                            Wallpaper w = new Wallpaper();
+                            w.id = d.id;
+                            w.title = d.title;
+                            w.url = url;
+                            list.add(w);
+                        }
+                    }
+                    callback.onSuccess(list);
+                } else if ((response.code() == 401 || response.code() == 403) && !hasRetriedAfterToken) {
+                    Log.w(TAG, "401 on search. Refreshing token and retrying once.");
+                    TokenStore.setToken(null, 0);
+                    ensureTokenThen(new PopularCallback() {
+                        @Override public void onSuccess(List<Wallpaper> wallpapers) { /* noop */ }
+                        @Override public void onError(Throwable t) { callback.onError(t); }
+                    }, () -> doSearchByTag(trimmed, true, callback));
+                } else {
+                    callback.onError(new Exception("Search failed: " + response.code() + " " + response.message()));
                 }
             }
 

@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.navigation.Navigation;
 
 import com.curosoft.splashify.R;
 import com.curosoft.splashify.databinding.FragmentHomeBinding;
@@ -90,6 +91,15 @@ public class HomeFragment extends Fragment {
 
         // Load data
         viewModel.loadPopular();
+
+        // Toolbar menu actions
+        binding.topAppBar.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.action_search) {
+                Navigation.findNavController(view).navigate(R.id.action_home_to_search);
+                return true;
+            }
+            return false;
+        });
     }
 
     @Override

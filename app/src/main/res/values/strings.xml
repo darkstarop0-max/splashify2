@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Splashify</string>
+    <string name="search_hint">Search tags…</string>
+    <string name="no_results">No results found</string>
+    <string name="error_search">Error while searching</string>
+    <string name="search">Search</string>
 </resources>
