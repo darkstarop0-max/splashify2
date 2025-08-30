@@ -17,6 +17,7 @@ import com.curosoft.splashify.R;
 import com.curosoft.splashify.databinding.FragmentHomeBinding;
 import com.curosoft.splashify.model.Category;
 import com.curosoft.splashify.viewmodel.HomeViewModel;
+import com.curosoft.splashify.viewmodel.FavoritesViewModel;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,6 +26,7 @@ public class HomeFragment extends Fragment {
     private FragmentHomeBinding binding;
     private HomeViewModel viewModel;
     private WallpaperAdapter wallpaperAdapter;
+    private FavoritesViewModel favoritesViewModel;
 
     @Nullable
     @Override
@@ -58,7 +60,23 @@ public class HomeFragment extends Fragment {
         binding.rvCategories.setAdapter(categoryAdapter);
 
         // Wallpapers RecyclerView - grid 2 columns
-        wallpaperAdapter = new WallpaperAdapter();
+        favoritesViewModel = new ViewModelProvider(requireActivity()).get(FavoritesViewModel.class);
+        wallpaperAdapter = new WallpaperAdapter().setListener(new WallpaperAdapter.Listener() {
+            @Override
+            public void onToggleFavorite(com.curosoft.splashify.model.Wallpaper item) {
+                boolean isFav = favoritesViewModel.favoriteIds.getValue() != null && favoritesViewModel.favoriteIds.getValue().contains(item.id);
+                if (isFav) {
+                    favoritesViewModel.remove(item.id);
+                } else {
+                    favoritesViewModel.add(item.id, item.title, item.url, null);
+                }
+            }
+
+            @Override
+            public boolean isFavorite(String id) {
+                return favoritesViewModel.favoriteIds.getValue() != null && favoritesViewModel.favoriteIds.getValue().contains(id);
+            }
+        });
         binding.rvWallpapers.setLayoutManager(new GridLayoutManager(requireContext(), 2));
         binding.rvWallpapers.setAdapter(wallpaperAdapter);
 
@@ -80,6 +98,7 @@ public class HomeFragment extends Fragment {
                 showContent(true);
             }
         });
+    favoritesViewModel.favoriteIds.observe(getViewLifecycleOwner(), ids -> wallpaperAdapter.notifyDataSetChanged());
         viewModel.error.observe(getViewLifecycleOwner(), err -> {
             if (err != null) {
                 showShimmer(false);

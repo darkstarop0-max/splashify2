@@ -16,11 +16,13 @@ import androidx.appcompat.widget.SearchView;
 import com.curosoft.splashify.databinding.FragmentSearchBinding;
 import com.curosoft.splashify.ui.home.WallpaperAdapter;
 import com.curosoft.splashify.viewmodel.SearchViewModel;
+import com.curosoft.splashify.viewmodel.FavoritesViewModel;
 
 public class SearchFragment extends Fragment {
     private FragmentSearchBinding binding;
     private SearchViewModel viewModel;
     private WallpaperAdapter adapter;
+    private FavoritesViewModel favoritesViewModel;
 
     @Nullable
     @Override
@@ -33,7 +35,20 @@ public class SearchFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        adapter = new WallpaperAdapter();
+        favoritesViewModel = new ViewModelProvider(requireActivity()).get(FavoritesViewModel.class);
+        adapter = new WallpaperAdapter().setListener(new WallpaperAdapter.Listener() {
+            @Override
+            public void onToggleFavorite(com.curosoft.splashify.model.Wallpaper item) {
+                boolean isFav = favoritesViewModel.favoriteIds.getValue() != null && favoritesViewModel.favoriteIds.getValue().contains(item.id);
+                if (isFav) favoritesViewModel.remove(item.id);
+                else favoritesViewModel.add(item.id, item.title, item.url, null);
+            }
+
+            @Override
+            public boolean isFavorite(String id) {
+                return favoritesViewModel.favoriteIds.getValue() != null && favoritesViewModel.favoriteIds.getValue().contains(id);
+            }
+        });
         binding.rvResults.setLayoutManager(new GridLayoutManager(requireContext(), 2));
         binding.rvResults.setAdapter(adapter);
 
@@ -54,6 +69,7 @@ public class SearchFragment extends Fragment {
                 showContent(true);
             }
         });
+    favoritesViewModel.favoriteIds.observe(getViewLifecycleOwner(), ids -> adapter.notifyDataSetChanged());
         viewModel.error.observe(getViewLifecycleOwner(), err -> {
             if (err != null) {
                 showShimmer(false);

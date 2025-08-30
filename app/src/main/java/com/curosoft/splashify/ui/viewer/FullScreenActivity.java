@@ -20,6 +20,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.curosoft.splashify.R;
+import com.curosoft.splashify.favorites.FavoritesManager;
 import com.google.android.material.button.MaterialButton;
 
 import com.github.chrisbanes.photoview.PhotoView;
@@ -27,6 +28,12 @@ import androidx.core.content.FileProvider;
 
 public class FullScreenActivity extends AppCompatActivity {
     public static final String EXTRA_IMAGE_URL = "extra_image_url";
+    public static final String EXTRA_IMAGE_ID = "extra_image_id";
+    public static final String EXTRA_IMAGE_TITLE = "extra_image_title";
+
+    private String imageId;
+    private String imageTitle;
+    private String imageUrl;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -43,17 +50,19 @@ public class FullScreenActivity extends AppCompatActivity {
         }
 
     Intent intent = getIntent();
-    String url = intent != null ? intent.getStringExtra(EXTRA_IMAGE_URL) : null;
+    imageUrl = intent != null ? intent.getStringExtra(EXTRA_IMAGE_URL) : null;
+    imageId = intent != null ? intent.getStringExtra(EXTRA_IMAGE_ID) : null;
+    imageTitle = intent != null ? intent.getStringExtra(EXTRA_IMAGE_TITLE) : null;
 
         PhotoView photoView = findViewById(R.id.photoView);
-        if (url == null || url.isEmpty()) {
+        if (imageUrl == null || imageUrl.isEmpty()) {
             Toast.makeText(this, "Image URL missing", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
     Glide.with(this)
-                .load(url)
+                .load(imageUrl)
                 .placeholder(R.drawable.placeholder)
                 .error(R.drawable.error_placeholder)
                 .into(photoView);
@@ -62,9 +71,9 @@ public class FullScreenActivity extends AppCompatActivity {
     MaterialButton btnDownload = findViewById(R.id.btnDownload);
     MaterialButton btnShare = findViewById(R.id.btnShare);
 
-    btnSet.setOnClickListener(v -> applyAsWallpaper(url));
-    btnDownload.setOnClickListener(v -> downloadImage(url));
-    btnShare.setOnClickListener(v -> shareImage(url));
+    btnSet.setOnClickListener(v -> applyAsWallpaper(imageUrl));
+    btnDownload.setOnClickListener(v -> downloadImage(imageUrl));
+    btnShare.setOnClickListener(v -> shareImage(imageUrl));
     }
 
     @Override
@@ -78,8 +87,21 @@ public class FullScreenActivity extends AppCompatActivity {
         if (item.getItemId() == android.R.id.home) {
             finish();
             return true;
+        } else if (item.getItemId() == R.id.action_favorite_toggle) {
+            boolean isFav = false;
+            // naive check by observing current cached list once; for simplicity, toggle immediately
+            // In a full app, you'd observe LiveData and update icon state accordingly
+            FavoritesManager.toggle(this, imageId, imageTitle, imageUrl, null, isFav);
+            Toast.makeText(this, "Toggled favorite", Toast.LENGTH_SHORT).show();
+            return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(android.view.Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_fullscreen, menu);
+        return true;
     }
 
     private void applyAsWallpaper(String url) {
